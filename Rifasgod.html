@@ -1,0 +1,1923 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rifas God | Sorteo PC Gamer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #FFD700;
+            --primary-dim: #b89b00;
+            --accent: #00f2ff;
+            --accent-dim: rgba(0, 242, 255, 0.15);
+            --bg: #060608;
+            --bg-card: #111114;
+            --bg-card-hover: #1a1a1f;
+            --surface: #0d0d10;
+            --text: #f0f0f0;
+            --text-dim: #888;
+            --success: #00ff88;
+            --danger: #ff3b3b;
+            --border: rgba(255, 215, 0, 0.12);
+            --glow-gold: 0 0 40px rgba(255, 215, 0, 0.15);
+            --glow-cyan: 0 0 40px rgba(0, 242, 255, 0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* === CANVAS DE PARTÍCULAS === */
+        #particles-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* === TOAST === */
+        .toast-container {
+            position: fixed;
+            top: 20px; right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--success);
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--text);
+            backdrop-filter: blur(20px);
+            animation: toastIn 0.4s ease, toastOut 0.4s ease 2.6s forwards;
+            max-width: 360px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .toast.error { border-left-color: var(--danger); }
+        .toast.info { border-left-color: var(--accent); }
+
+        @keyframes toastIn {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+
+        /* === NAV === */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            padding: 0 2rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(6, 6, 8, 0.75);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            transition: background 0.3s;
+        }
+
+        .nav-logo {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 1.3rem;
+            color: var(--primary);
+            text-decoration: none;
+            letter-spacing: 1px;
+        }
+
+        .nav-logo span { color: var(--accent); }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px; left: 0;
+            width: 0; height: 2px;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover { color: var(--primary); }
+        .nav-links a:hover::after { width: 100%; }
+
+        .nav-toggle {
+            display: none;
+            background: none; border: none;
+            color: var(--text); font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* === HERO === */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 50% 40%, rgba(255, 215, 0, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 20% 80%, rgba(0, 242, 255, 0.04) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 40% at 80% 20%, rgba(255, 215, 0, 0.03) 0%, transparent 50%);
+            z-index: 0;
+        }
+
+        .hero-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 215, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 215, 0, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 20%, transparent 70%);
+            z-index: 0;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 2rem;
+            max-width: 800px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(0, 242, 255, 0.25);
+            padding: 6px 18px;
+            border-radius: 50px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease both;
+        }
+
+        .hero-badge .pulse-dot {
+            width: 8px; height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .hero-title {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(2.5rem, 7vw, 5rem);
+            font-weight: 900;
+            line-height: 1.05;
+            margin-bottom: 1.2rem;
+            animation: fadeInUp 0.8s ease 0.15s both;
+        }
+
+        .hero-title .gold { color: var(--primary); }
+        .hero-title .cyan { color: var(--accent); }
+
+        .hero-sub {
+            font-size: 1.15rem;
+            color: var(--text-dim);
+            max-width: 560px;
+            margin: 0 auto 2.5rem;
+            font-weight: 300;
+            animation: fadeInUp 0.8s ease 0.3s both;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.45s both;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.7); }
+        }
+
+        /* === BOTONES === */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #FFD700, #e6b800);
+            color: #000;
+            box-shadow: 0 4px 25px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 40px rgba(255, 215, 0, 0.45);
+        }
+
+        .btn-gold::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-gold:hover::before { left: 100%; }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--accent);
+            border: 1.5px solid rgba(0, 242, 255, 0.35);
+        }
+
+        .btn-outline:hover {
+            background: var(--accent-dim);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .btn-sm {
+            padding: 10px 22px;
+            font-size: 0.82rem;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff3b3b, #cc0000);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 59, 59, 0.3);
+        }
+
+        /* === SECCIONES === */
+        section {
+            position: relative;
+            z-index: 1;
+            padding: 6rem 1.5rem;
+        }
+
+        .section-label {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-align: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .section-desc {
+            text-align: center;
+            color: var(--text-dim);
+            max-width: 550px;
+            margin: 0 auto 3.5rem;
+            font-weight: 300;
+            font-size: 1rem;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        /* === COUNTDOWN === */
+        .countdown-section {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .countdown-item {
+            text-align: center;
+        }
+
+        .countdown-number {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 900;
+            color: var(--primary);
+            line-height: 1;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.25);
+            transition: transform 0.3s;
+        }
+
+        .countdown-number.tick {
+            animation: tickPulse 0.4s ease;
+        }
+
+        @keyframes tickPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        .countdown-label {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 6px;
+            font-weight: 600;
+        }
+
+        /* === PREMIO === */
+        .prize-section { background: var(--bg); }
+
+        .prize-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            box-shadow: var(--glow-gold);
+            transition: box-shadow 0.4s;
+        }
+
+        .prize-card:hover {
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.2);
+        }
+
+        .prize-image {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #111, #1a1a1a);
+            min-height: 350px;
+        }
+
+        .prize-image img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s;
+        }
+
+        .prize-card:hover .prize-image img {
+            transform: scale(1.05);
+        }
+
+        .prize-image-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, transparent 60%, var(--bg-card) 100%);
+        }
+
+        .prize-tag {
+            position: absolute;
+            top: 16px; left: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dim));
+            color: #000;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.65rem;
+            font-weight: 900;
+            padding: 6px 14px;
+            border-radius: 6px;
+            letter-spacing: 2px;
+        }
+
+        .prize-info {
+            padding: 2.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .prize-info h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.4rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .prize-info .prize-price {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .prize-specs {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .prize-specs li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.88rem;
+            color: var(--text-dim);
+        }
+
+        .prize-specs li i {
+            color: var(--primary);
+            width: 18px;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+
+        .prize-specs li strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        /* === COMO FUNCIONA === */
+        .steps-section {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .step-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            position: relative;
+            transition: all 0.4s;
+        }
+
+        .step-card:hover {
+            border-color: rgba(255, 215, 0, 0.3);
+            transform: translateY(-4px);
+            box-shadow: var(--glow-gold);
+        }
+
+        .step-number {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            color: rgba(255, 215, 0, 0.08);
+            position: absolute;
+            top: 10px; right: 18px;
+            line-height: 1;
+        }
+
+        .step-icon {
+            width: 56px; height: 56px;
+            border-radius: 14px;
+            background: var(--accent-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.2rem;
+            font-size: 1.3rem;
+            color: var(--accent);
+            transition: all 0.3s;
+        }
+
+        .step-card:hover .step-icon {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 25px rgba(0, 242, 255, 0.3);
+        }
+
+        .step-card h4 {
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-card p {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        /* === NUMEROS / BOLETOS === */
+        .tickets-section { background: var(--bg); }
+
+        .tickets-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 4px;
+        }
+
+        .progress-bar-container {
+            max-width: 600px;
+            margin: 0 auto 3rem;
+        }
+
+        .progress-bar-bg {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            transition: width 0.6s ease;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.78rem;
+            color: var(--text-dim);
+        }
+
+        .tickets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+            gap: 8px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .ticket-num {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            border: 1.5px solid rgba(255, 255, 255, 0.06);
+            background: var(--bg-card);
+            color: var(--text-dim);
+            user-select: none;
+            position: relative;
+        }
+
+        .ticket-num:hover:not(.sold):not(.selected) {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: scale(1.08);
+        }
+
+        .ticket-num.selected {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dim));
+            color: #000;
+            border-color: var(--primary);
+            transform: scale(1.08);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .ticket-num.sold {
+            background: rgba(255, 59, 59, 0.1);
+            border-color: rgba(255, 59, 59, 0.15);
+            color: rgba(255, 59, 59, 0.35);
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
+
+        /* === PANEL DE COMPRA === */
+        .purchase-panel {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            z-index: 900;
+            background: rgba(11, 11, 14, 0.92);
+            backdrop-filter: blur(24px);
+            border-top: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .purchase-panel.visible {
+            transform: translateY(0);
+        }
+
+        .purchase-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .purchase-count {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .purchase-total {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: var(--text);
+        }
+
+        .purchase-total span {
+            color: var(--accent);
+        }
+
+        /* === MODAL === */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            max-width: 440px;
+            width: 100%;
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal p {
+            color: var(--text-dim);
+            font-size: 0.88rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--surface);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            transition: border-color 0.3s;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .modal-actions .btn { flex: 1; justify-content: center; }
+
+        /* === PARTICIPANTES === */
+        .participants-section {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+        }
+
+        .participants-list {
+            max-width: 700px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .participant-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 20px;
+            transition: all 0.3s;
+            animation: fadeInUp 0.5s ease both;
+        }
+
+        .participant-row:hover {
+            border-color: rgba(255, 215, 0, 0.2);
+            background: var(--bg-card-hover);
+        }
+
+        .participant-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .participant-avatar {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #000;
+            flex-shrink: 0;
+        }
+
+        .participant-name {
+            font-weight: 600;
+            font-size: 0.92rem;
+        }
+
+        .participant-tickets {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+        }
+
+        .participant-nums {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.78rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-dim);
+            padding: 3rem;
+            font-size: 0.95rem;
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            color: rgba(255, 255, 255, 0.08);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        /* === SORTEO EN VIVO === */
+        .draw-section { background: var(--bg); }
+
+        .draw-machine {
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .draw-display {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .draw-display::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.03), transparent 70%);
+        }
+
+        .draw-number-display {
+            font-family: 'Orbitron', monospace;
+            font-size: 5rem;
+            font-weight: 900;
+            color: var(--primary);
+            text-shadow: 0 0 60px rgba(255, 215, 0, 0.4);
+            line-height: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .draw-number-display.spinning {
+            animation: spinGlow 0.1s infinite alternate;
+        }
+
+        @keyframes spinGlow {
+            from { text-shadow: 0 0 40px rgba(255, 215, 0, 0.3); }
+            to { text-shadow: 0 0 80px rgba(255, 215, 0, 0.6); }
+        }
+
+        .draw-winner-name {
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-top: 0.5rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+            min-height: 1.5em;
+        }
+
+        .draw-status {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .confetti-container {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px; height: 10px;
+            top: -10px;
+            animation: confettiFall linear forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* === FOOTER === */
+        footer {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 3rem 1.5rem;
+            border-top: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        footer .footer-logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin-bottom: 0.8rem;
+        }
+
+        footer p {
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            max-width: 500px;
+            margin: 0 auto 1.2rem;
+        }
+
+        .footer-socials {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .footer-socials a {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .footer-socials a:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            background: rgba(255, 215, 0, 0.06);
+            transform: translateY(-2px);
+        }
+
+        /* === SCROLL REVEAL === */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .nav-links.open {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 64px; left: 0; right: 0;
+                background: rgba(6, 6, 8, 0.95);
+                backdrop-filter: blur(20px);
+                padding: 1.5rem 2rem;
+                gap: 1.2rem;
+                border-bottom: 1px solid var(--border);
+            }
+            .nav-toggle { display: block; }
+
+            .prize-card {
+                grid-template-columns: 1fr;
+            }
+            .prize-image { min-height: 250px; }
+            .prize-image-overlay {
+                background: linear-gradient(to bottom, transparent 60%, var(--bg-card) 100%);
+            }
+
+            .countdown-grid { gap: 1rem; }
+            .tickets-grid { grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 6px; }
+            .ticket-num { font-size: 0.65rem; }
+
+            .purchase-panel {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.8rem;
+                padding: 1rem;
+            }
+            .purchase-info { flex-direction: column; gap: 0.5rem; }
+
+            .draw-number-display { font-size: 3.5rem; }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title { font-size: 2rem; }
+            .tickets-stats { gap: 1.5rem; }
+            .stat-value { font-size: 1.5rem; }
+        }
+
+        /* Reducir movimiento si el usuario lo prefiere */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+            #particles-canvas { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Partículas de fondo -->
+    <canvas id="particles-canvas" aria-hidden="true"></canvas>
+
+    <!-- Toasts -->
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <!-- Confetti container -->
+    <div class="confetti-container" id="confettiContainer"></div>
+
+    <!-- Navegación -->
+    <nav role="navigation" aria-label="Navegación principal">
+        <a href="#" class="nav-logo">RIFAS<span>GOD</span></a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#premio">Premio</a></li>
+            <li><a href="#como-funciona">Como Funciona</a></li>
+            <li><a href="#boletos">Boletos</a></li>
+            <li><a href="#participantes">Participantes</a></li>
+            <li><a href="#sorteo">Sorteo</a></li>
+        </ul>
+        <button class="nav-toggle" id="navToggle" aria-label="Abrir menú">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
+    <!-- Hero -->
+    <header class="hero" role="banner">
+        <div class="hero-bg"></div>
+        <div class="hero-grid"></div>
+        <div class="hero-content">
+            <div class="hero-badge">
+                <div class="pulse-dot"></div>
+                Sorteo Activo
+            </div>
+            <h1 class="hero-title">
+                Gana una <span class="gold">PC Gamer</span><br>
+                de <span class="cyan">Alto Rendimiento</span>
+            </h1>
+            <p class="hero-sub">
+                Solo 100 boletos disponibles. Elige tus numeros favoritos y compite por una computadora construida para dominar cualquier juego.
+            </p>
+            <div class="hero-actions">
+                <a href="#boletos" class="btn btn-gold">
+                    <i class="fas fa-ticket"></i> Comprar Boletos
+                </a>
+                <a href="#sorteo" class="btn btn-outline">
+                    <i class="fas fa-play"></i> Ver Sorteo
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Countdown -->
+    <section class="countdown-section" aria-label="Cuenta regresiva">
+        <div class="container">
+            <p class="section-label">El sorteo cierra en</p>
+            <div class="countdown-grid" id="countdown">
+                <div class="countdown-item">
+                    <div class="countdown-number" id="cd-days">00</div>
+                    <div class="countdown-label">Dias</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="cd-hours">00</div>
+                    <div class="countdown-label">Horas</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="cd-mins">00</div>
+                    <div class="countdown-label">Minutos</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="cd-secs">00</div>
+                    <div class="countdown-label">Segundos</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Premio -->
+    <section class="prize-section" id="premio">
+        <div class="container">
+            <p class="section-label reveal">El Gran Premio</p>
+            <h2 class="section-title reveal">Lo que puedes ganar</h2>
+            <p class="section-desc reveal">Una maquina disenada desde cero para ofrecer el maximo rendimiento en juegos y creacion de contenido.</p>
+
+            <div class="prize-card reveal">
+                <div class="prize-image">
+                    <div class="prize-tag">GRAN PREMIO</div>
+                    <img src="https://picsum.photos/seed/gamingpc2024/800/600.jpg" alt="PC Gamer de alto rendimiento" loading="lazy">
+                    <div class="prize-image-overlay"></div>
+                </div>
+                <div class="prize-info">
+                    <h3>PC Gamer Ultimate</h3>
+                    <div class="prize-price">$2,499 USD</div>
+                    <ul class="prize-specs">
+                        <li><i class="fas fa-microchip"></i> <strong>Procesador:</strong> AMD Ryzen 7 7800X3D</li>
+                        <li><i class="fas fa-memory"></i> <strong>RAM:</strong> 32GB DDR5 6000MHz</li>
+                        <li><i class="fas fa-bolt"></i> <strong>GPU:</strong> RTX 4070 Ti Super 16GB</li>
+                        <li><i class="fas fa-hdd"></i> <strong>Almacenamiento:</strong> 2TB NVMe Gen4</li>
+                        <li><i class="fas fa-fan"></i> <strong>Refrigeracion:</strong> Liquid Cooling 360mm</li>
+                        <li><i class="fas fa-plug"></i> <strong>Fuente:</strong> 850W 80+ Gold</li>
+                    </ul>
+                    <a href="#boletos" class="btn btn-gold btn-sm">
+                        <i class="fas fa-ticket"></i> Participar Ahora
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Como Funciona -->
+    <section class="steps-section" id="como-funciona">
+        <div class="container">
+            <p class="section-label reveal">Proceso Simple</p>
+            <h2 class="section-title reveal">Como funciona</h2>
+            <p class="section-desc reveal">En solo 3 pasos estas participando por la PC Gamer de tus suenos.</p>
+
+            <div class="steps-grid">
+                <div class="step-card reveal">
+                    <div class="step-number">01</div>
+                    <div class="step-icon"><i class="fas fa-hand-pointer"></i></div>
+                    <h4>Elige tus numeros</h4>
+                    <p>Selecciona los numeros de boleto que mas te gusten del tablero disponible.</p>
+                </div>
+                <div class="step-card reveal">
+                    <div class="step-number">02</div>
+                    <div class="step-icon"><i class="fas fa-credit-card"></i></div>
+                    <h4>Completa tu pago</h4>
+                    <p>Ingresa tus datos y realiza el pago de forma segura por cada boleto seleccionado.</p>
+                </div>
+                <div class="step-card reveal">
+                    <div class="step-number">03</div>
+                    <div class="step-icon"><i class="fas fa-trophy"></i></div>
+                    <h4>Espera el sorteo</h4>
+                    <p>El dia del sorteo se selecciona un numero al azar. Si es tuyo, la PC es tuya.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Boletos -->
+    <section class="tickets-section" id="boletos">
+        <div class="container">
+            <p class="section-label reveal">Selecciona tus numeros</p>
+            <h2 class="section-title reveal">Tablero de Boletos</h2>
+            <p class="section-desc reveal">Haz clic en los numeros que desees. Cada boleto cuesta $25 USD. Puedes elegir varios.</p>
+
+            <div class="tickets-stats reveal">
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-available">100</div>
+                    <div class="stat-label">Disponibles</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-sold">0</div>
+                    <div class="stat-label">Vendidos</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">$25</div>
+                    <div class="stat-label">Por Boleto</div>
+                </div>
+            </div>
+
+            <div class="progress-bar-container reveal">
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="progress-labels">
+                    <span id="progressText">0% vendido</span>
+                    <span>100 boletos totales</span>
+                </div>
+            </div>
+
+            <div class="tickets-grid reveal" id="ticketsGrid" role="grid" aria-label="Tablero de boletos">
+                <!-- Generado por JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Participantes -->
+    <section class="participants-section" id="participantes">
+        <div class="container">
+            <p class="section-label reveal">Lista de Participantes</p>
+            <h2 class="section-title reveal">Quienes estan en el sorteo</h2>
+            <p class="section-desc reveal">Todos los participantes confirmados aparecen aqui con sus numeros asignados.</p>
+
+            <div class="participants-list reveal" id="participantsList">
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    Aun no hay participantes. Se el primero en comprar un boleto.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sorteo en Vivo -->
+    <section class="draw-section" id="sorteo">
+        <div class="container">
+            <p class="section-label reveal">Sorteo en Vivo</p>
+            <h2 class="section-title reveal">Revelacion del Ganador</h2>
+            <p class="section-desc reveal">Cuando todos los boletos se vendan, se habilitara el boton para realizar el sorteo de forma transparente.</p>
+
+            <div class="draw-machine reveal">
+                <div class="draw-display">
+                    <div class="draw-number-display" id="drawNumber">--</div>
+                    <div class="draw-winner-name" id="drawWinner"></div>
+                    <div class="draw-status" id="drawStatus">Esperando inicio del sorteo...</div>
+                </div>
+                <button class="btn btn-gold" id="drawBtn" disabled>
+                    <i class="fas fa-dice"></i> Iniciar Sorteo
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-logo">RIFAS<span style="color:var(--accent)">GOD</span></div>
+        <p>Sorteos transparentes y justos. Todos los participantes pueden verificar el resultado en tiempo real.</p>
+        <div class="footer-socials">
+            <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+            <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+        <p style="margin-top:1.5rem;font-size:0.72rem;color:rgba(255,255,255,0.25);">
+            2025 RifasGod. Todos los derechos reservados.
+        </p>
+    </footer>
+
+    <!-- Panel de compra flotante -->
+    <div class="purchase-panel" id="purchasePanel" role="complementary" aria-label="Resumen de compra">
+        <div class="purchase-info">
+            <div>
+                <div class="purchase-count" id="purchaseCount">0 boletos</div>
+                <div class="purchase-total">Total: <span id="purchaseTotal">$0</span></div>
+            </div>
+        </div>
+        <div style="display:flex;gap:0.8rem;">
+            <button class="btn btn-outline btn-sm" id="clearSelection">
+                <i class="fas fa-times"></i> Limpiar
+            </button>
+            <button class="btn btn-gold btn-sm" id="buyBtn">
+                <i class="fas fa-shopping-cart"></i> Comprar
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de compra -->
+    <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-label="Formulario de compra">
+        <div class="modal">
+            <h3>Confirmar Compra</h3>
+            <p id="modalSummary">Estas comprando 0 boletos por un total de $0.</p>
+            <div class="form-group">
+                <label for="buyerName">Nombre completo</label>
+                <input type="text" id="buyerName" placeholder="Tu nombre" autocomplete="name">
+            </div>
+            <div class="form-group">
+                <label for="buyerPhone">Telefono / WhatsApp</label>
+                <input type="tel" id="buyerPhone" placeholder="+1 234 567 8900" autocomplete="tel">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline btn-sm" id="modalCancel">Cancelar</button>
+                <button class="btn btn-gold btn-sm" id="modalConfirm">
+                    <i class="fas fa-check"></i> Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // ESTADO GLOBAL
+        // ==========================================
+        const TOTAL_TICKETS = 100;
+        const TICKET_PRICE = 25;
+        const DRAW_DATE = new Date();
+        // Fecha del sorteo: 7 dias desde ahora
+        DRAW_DATE.setDate(DRAW_DATE.getDate() + 7);
+
+        // Base de datos en memoria
+        const state = {
+            soldTickets: new Set(),    // Numeros vendidos
+            selectedTickets: new Set(), // Numeros seleccionados (temporal)
+            participants: [],           // { name, phone, tickets: [], color }
+            drawDone: false
+        };
+
+        // Colores para avatares de participantes
+        const avatarColors = [
+            '#FFD700', '#00f2ff', '#ff3b3b', '#00ff88',
+            '#ff6b35', '#c084fc', '#f472b6', '#38bdf8'
+        ];
+
+        // Simulamos algunos boletos ya vendidos al inicio
+        const preSold = [3, 7, 12, 18, 24, 31, 42, 55, 67, 78, 89, 95];
+        const preParticipants = [
+            { name: 'Carlos Martinez', phone: '+1 555-0101', tickets: [3, 24, 67] },
+            { name: 'Ana Rodriguez', phone: '+1 555-0102', tickets: [7, 42] },
+            { name: 'Luis Hernandez', phone: '+1 555-0103', tickets: [12, 55, 89] },
+            { name: 'Maria Lopez', phone: '+1 555-0104', tickets: [18, 78, 95] },
+            { name: 'Diego Torres', phone: '+1 555-0105', tickets: [31] }
+        ];
+
+        preSold.forEach(n => state.soldTickets.add(n));
+        preParticipants.forEach((p, i) => {
+            state.participants.push({
+                ...p,
+                color: avatarColors[i % avatarColors.length]
+            });
+        });
+
+        // ==========================================
+        // PARTICULAS DE FONDO
+        // ==========================================
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function createParticles() {
+            particles = [];
+            const count = Math.min(60, Math.floor(window.innerWidth / 25));
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2 + 0.5,
+                    speedX: (Math.random() - 0.5) * 0.3,
+                    speedY: (Math.random() - 0.5) * 0.3,
+                    opacity: Math.random() * 0.4 + 0.1,
+                    color: Math.random() > 0.5 ? '255,215,0' : '0,242,255'
+                });
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.x += p.speedX;
+                p.y += p.speedY;
+                // Rebote suave en bordes
+                if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${p.color},${p.opacity})`;
+                ctx.fill();
+            });
+
+            // Dibujar lineas entre particulas cercanas
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(255,215,0,${0.04 * (1 - dist / 120)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animateParticles);
+        }
+
+        resizeCanvas();
+        createParticles();
+        animateParticles();
+        window.addEventListener('resize', () => { resizeCanvas(); createParticles(); });
+
+        // ==========================================
+        // NAVEGACION MOVIL
+        // ==========================================
+        const navToggle = document.getElementById('navToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        navToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('open');
+            const isOpen = navLinks.classList.contains('open');
+            navToggle.innerHTML = isOpen
+                ? '<i class="fas fa-times"></i>'
+                : '<i class="fas fa-bars"></i>';
+        });
+
+        // Cerrar menu al hacer clic en un enlace
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('open');
+                navToggle.innerHTML = '<i class="fas fa-bars"></i>';
+            });
+        });
+
+        // ==========================================
+        // COUNTDOWN
+        // ==========================================
+        const cdDays = document.getElementById('cd-days');
+        const cdHours = document.getElementById('cd-hours');
+        const cdMins = document.getElementById('cd-mins');
+        const cdSecs = document.getElementById('cd-secs');
+
+        function updateCountdown() {
+            const now = new Date();
+            let diff = DRAW_DATE - now;
+
+            if (diff <= 0) {
+                cdDays.textContent = '00';
+                cdHours.textContent = '00';
+                cdMins.textContent = '00';
+                cdSecs.textContent = '00';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            diff -= days * 1000 * 60 * 60 * 24;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            diff -= hours * 1000 * 60 * 60;
+            const mins = Math.floor(diff / (1000 * 60));
+            diff -= mins * 1000 * 60;
+            const secs = Math.floor(diff / 1000);
+
+            const pad = n => String(n).padStart(2, '0');
+
+            // Animar solo si cambia el valor
+            animateNumber(cdDays, pad(days));
+            animateNumber(cdHours, pad(hours));
+            animateNumber(cdMins, pad(mins));
+            animateNumber(cdSecs, pad(secs));
+        }
+
+        function animateNumber(el, newVal) {
+            if (el.textContent !== newVal) {
+                el.textContent = newVal;
+                el.classList.add('tick');
+                setTimeout(() => el.classList.remove('tick'), 400);
+            }
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+
+        // ==========================================
+        // TABLERO DE BOLETOS
+        // ==========================================
+        const ticketsGrid = document.getElementById('ticketsGrid');
+        const purchasePanel = document.getElementById('purchasePanel');
+        const purchaseCount = document.getElementById('purchaseCount');
+        const purchaseTotal = document.getElementById('purchaseTotal');
+        const statAvailable = document.getElementById('stat-available');
+        const statSold = document.getElementById('stat-sold');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+
+        function renderTickets() {
+            ticketsGrid.innerHTML = '';
+            for (let i = 1; i <= TOTAL_TICKETS; i++) {
+                const btn = document.createElement('div');
+                btn.className = 'ticket-num';
+                btn.textContent = i;
+                btn.setAttribute('role', 'gridcell');
+                btn.setAttribute('tabindex', '0');
+                btn.setAttribute('aria-label', `Boleto ${i}`);
+
+                if (state.soldTickets.has(i)) {
+                    btn.classList.add('sold');
+                    btn.setAttribute('aria-disabled', 'true');
+                } else if (state.selectedTickets.has(i)) {
+                    btn.classList.add('selected');
+                    btn.setAttribute('aria-pressed', 'true');
+                }
+
+                btn.addEventListener('click', () => toggleTicket(i));
+                btn.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleTicket(i);
+                    }
+                });
+
+                ticketsGrid.appendChild(btn);
+            }
+        }
+
+        function toggleTicket(num) {
+            if (state.soldTickets.has(num) || state.drawDone) return;
+
+            if (state.selectedTickets.has(num)) {
+                state.selectedTickets.delete(num);
+            } else {
+                state.selectedTickets.add(num);
+            }
+
+            renderTickets();
+            updatePurchasePanel();
+        }
+
+        function updatePurchasePanel() {
+            const count = state.selectedTickets.size;
+            const total = count * TICKET_PRICE;
+
+            if (count > 0) {
+                purchasePanel.classList.add('visible');
+            } else {
+                purchasePanel.classList.remove('visible');
+            }
+
+            purchaseCount.textContent = `${count} boleto${count !== 1 ? 's' : ''}`;
+            purchaseTotal.textContent = `$${total}`;
+        }
+
+        function updateStats() {
+            const sold = state.soldTickets.size;
+            const available = TOTAL_TICKETS - sold;
+            const pct = Math.round((sold / TOTAL_TICKETS) * 100);
+
+            statAvailable.textContent = available;
+            statSold.textContent = sold;
+            progressFill.style.width = `${pct}%`;
+            progressText.textContent = `${pct}% vendido`;
+
+            // Habilitar boton de sorteo si todos vendidos
+            const drawBtn = document.getElementById('drawBtn');
+            if (sold >= TOTAL_TICKETS && !state.drawDone) {
+                drawBtn.disabled = false;
+                drawBtn.innerHTML = '<i class="fas fa-dice"></i> Realizar Sorteo';
+                document.getElementById('drawStatus').textContent = 'Todos los boletos vendidos. Listo para sortear.';
+            }
+        }
+
+        renderTickets();
+        updateStats();
+
+        // ==========================================
+        // MODAL DE COMPRA
+        // ==========================================
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalSummary = document.getElementById('modalSummary');
+        const buyerName = document.getElementById('buyerName');
+        const buyerPhone = document.getElementById('buyerPhone');
+        const buyBtn = document.getElementById('buyBtn');
+        const clearSelection = document.getElementById('clearSelection');
+        const modalCancel = document.getElementById('modalCancel');
+        const modalConfirm = document.getElementById('modalConfirm');
+
+        buyBtn.addEventListener('click', () => {
+            if (state.selectedTickets.size === 0) return;
+            const count = state.selectedTickets.size;
+            const total = count * TICKET_PRICE;
+            const nums = [...state.selectedTickets].sort((a, b) => a - b).join(', ');
+            modalSummary.textContent = `Estas comprando ${count} boleto${count !== 1 ? 's' : ''} (${nums}) por un total de $${total}.`;
+            modalOverlay.classList.add('active');
+            buyerName.value = '';
+            buyerPhone.value = '';
+            setTimeout(() => buyerName.focus(), 300);
+        });
+
+        modalCancel.addEventListener('click', closeModal);
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+
+        // Cerrar con Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+        }
+
+        modalConfirm.addEventListener('click', () => {
+            const name = buyerName.value.trim();
+            const phone = buyerPhone.value.trim();
+
+            if (!name) {
+                showToast('Por favor ingresa tu nombre.', 'error');
+                buyerName.focus();
+                return;
+            }
+            if (!phone) {
+                showToast('Por favor ingresa tu telefono.', 'error');
+                buyerPhone.focus();
+                return;
+            }
+
+            // Procesar compra
+            const tickets = [...state.selectedTickets].sort((a, b) => a - b);
+            tickets.forEach(t => {
+                state.soldTickets.add(t);
+                state.selectedTickets.delete(t);
+            });
+
+            state.participants.push({
+                name,
+                phone,
+                tickets,
+                color: avatarColors[state.participants.length % avatarColors.length]
+            });
+
+            closeModal();
+            renderTickets();
+            updateStats();
+            updatePurchasePanel();
+            renderParticipants();
+
+            showToast(`Compra exitosa: ${tickets.length} boleto(s) a nombre de ${name}.`, 'success');
+        });
+
+        clearSelection.addEventListener('click', () => {
+            state.selectedTickets.clear();
+            renderTickets();
+            updatePurchasePanel();
+        });
+
+        // ==========================================
+        // LISTA DE PARTICIPANTES
+        // ==========================================
+        const participantsList = document.getElementById('participantsList');
+
+        function renderParticipants() {
+            if (state.participants.length === 0) {
+                participantsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        Aun no hay participantes. Se el primero en comprar un boleto.
+                    </div>`;
+                return;
+            }
+
+            participantsList.innerHTML = '';
+            state.participants.forEach((p, idx) => {
+                const row = document.createElement('div');
+                row.className = 'participant-row';
+                row.style.animationDelay = `${idx * 0.05}s`;
+
+                const initials = p.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+
+                row.innerHTML = `
+                    <div class="participant-left">
+                        <div class="participant-avatar" style="background:${p.color}">${initials}</div>
+                        <div>
+                            <div class="participant-name">${p.name}</div>
+                            <div class="participant-tickets">${p.tickets.length} boleto${p.tickets.length !== 1 ? 's' : ''}</div>
+                        </div>
+                    </div>
+                    <div class="participant-nums">${p.tickets.join(', ')}</div>
+                `;
+
+                participantsList.appendChild(row);
+            });
+        }
+
+        renderParticipants();
+
+        // ==========================================
+        // SORTEO
+        // ==========================================
+        const drawBtn = document.getElementById('drawBtn');
+        const drawNumber = document.getElementById('drawNumber');
+        const drawWinner = document.getElementById('drawWinner');
+        const drawStatus = document.getElementById('drawStatus');
+
+        drawBtn.addEventListener('click', () => {
+            if (state.soldTickets.size === 0 || state.drawDone) return;
+
+            drawBtn.disabled = true;
+            drawBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sorteando...';
+            drawWinner.textContent = '';
+            drawStatus.textContent = 'Seleccionando numero ganador...';
+            drawNumber.classList.add('spinning');
+
+            // Animacion de numeros aleatorios
+            const soldArray = [...state.soldTickets];
+            let spinCount = 0;
+            const maxSpins = 40;
+            let spinInterval = setInterval(() => {
+                const randomIdx = Math.floor(Math.random() * soldArray.length);
+                drawNumber.textContent = String(soldArray[randomIdx]).padStart(2, '0');
+                spinCount++;
+
+                if (spinCount >= maxSpins) {
+                    clearInterval(spinInterval);
+                    // Seleccionar el ganador real
+                    const winnerIdx = Math.floor(Math.random() * soldArray.length);
+                    const winnerNum = soldArray[winnerIdx];
+
+                    drawNumber.classList.remove('spinning');
+                    drawNumber.textContent = String(winnerNum).padStart(2, '0');
+
+                    // Buscar el participante ganador
+                    const winner = state.participants.find(p => p.tickets.includes(winnerNum));
+
+                    if (winner) {
+                        drawWinner.textContent = `Ganador: ${winner.name}`;
+                        drawStatus.textContent = `Boleto #${winnerNum} -- Felicidades!`;
+                        showToast(`El boleto #${winnerNum} de ${winner.name} ha ganado la PC Gamer!`, 'success', 5000);
+                    } else {
+                        drawWinner.textContent = `Boleto #${winnerNum}`;
+                        drawStatus.textContent = 'Ganador pre-asignado.';
+                    }
+
+                    state.drawDone = true;
+                    drawBtn.innerHTML = '<i class="fas fa-check-circle"></i> Sorteo Realizado';
+                    drawBtn.classList.remove('btn-gold');
+                    drawBtn.classList.add('btn-outline');
+
+                    // Lanzar confeti
+                    launchConfetti();
+                }
+            }, 60);
+        });
+
+        // ==========================================
+        // CONFETI
+        // ==========================================
+        function launchConfetti() {
+            const container = document.getElementById('confettiContainer');
+            const colors = ['#FFD700', '#00f2ff', '#ff3b3b', '#00ff88', '#ff6b35', '#c084fc', '#f472b6'];
+            const shapes = ['square', 'circle'];
+
+            for (let i = 0; i < 150; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const shape = shapes[Math.floor(Math.random() * shapes.length)];
+                const size = Math.random() * 10 + 5;
+                const left = Math.random() * 100;
+                const duration = Math.random() * 3 + 2;
+                const delay = Math.random() * 2;
+
+                piece.style.cssText = `
+                    left: ${left}%;
+                    width: ${size}px;
+                    height: ${size}px;
+                    background: ${color};
+                    border-radius: ${shape === 'circle' ? '50%' : '2px'};
+                    animation-duration: ${duration}s;
+                    animation-delay: ${delay}s;
+                `;
+
+                container.appendChild(piece);
+            }
+
+            // Limpiar confeti despues de la animacion
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 7000);
+        }
+
+        // ==========================================
+        // TOASTS
+        // ==========================================
+        function showToast(message, type = 'success', duration = 3000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            const icon = type === 'success' ? 'fa-check-circle'
+                : type === 'error' ? 'fa-exclamation-circle'
+                : 'fa-info-circle';
+
+            toast.innerHTML = `<i class="fas ${icon}" style="margin-right:8px;color:var(--${type === 'error' ? 'danger' : type === 'info' ? 'accent' : 'success'})"></i>${message}`;
+
+            container.appendChild(toast);
+            setTimeout(() => {
+                if (toast.parentNode) toast.remove();
+            }, duration);
+        }
+
+        // ==========================================
+        // SCROLL REVEAL (IntersectionObserver)
+        // ==========================================
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+        // ==========================================
+        // EFECTO NAV AL SCROLL
+        // ==========================================
+        const nav = document.querySelector('nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.style.background = 'rgba(6, 6, 8, 0.95)';
+            } else {
+                nav.style.background = 'rgba(6, 6, 8, 0.75)';
+            }
+        }, { passive: true });
+    </script>
+</body>
+</html>
